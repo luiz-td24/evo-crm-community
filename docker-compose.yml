@@ -10,9 +10,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: ${POSTGRES_DATABASE:-evo_community}
-      POSTGRES_USER: ${POSTGRES_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-evoai_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-evolution_crm}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME:-postgres}"]
       interval: 5s
@@ -50,7 +50,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "3301:3001"
     env_file: .env
     environment:
       RAILS_ENV: ${RAILS_ENV:-development}
@@ -69,7 +69,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 300s
 
   evo-auth-sidekiq:
     build:
@@ -92,6 +92,11 @@ services:
   # CRM Service (Ruby / Rails) — Port 3000
   # ---------------------------------------------------------------------------
   evo-crm:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.evolution_crm.rule=Host(`crm-vps-local.td24.com.br`)
+      - traefik.http.routers.evolution_crm.entrypoints=web
+      - traefik.http.services.evolution_crm.loadbalancer.server.port=3000
     build:
       context: ./evo-ai-crm-community
       dockerfile: docker/Dockerfile
@@ -101,7 +106,7 @@ services:
         RAILS_SERVE_STATIC_FILES: "false"
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3300:3000"
     env_file: .env
     environment:
       RAILS_ENV: ${RAILS_ENV:-development}
