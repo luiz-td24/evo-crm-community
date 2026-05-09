@@ -1,3 +1,5 @@
+name: evolution_crm
+
 services:
   # ---------------------------------------------------------------------------
   # Infrastructure
@@ -92,11 +94,6 @@ services:
   # CRM Service (Ruby / Rails) — Port 3000
   # ---------------------------------------------------------------------------
   evo-crm:
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.evolution_crm.rule=Host(`crm-vps-local.td24.com.br`)
-      - traefik.http.routers.evolution_crm.entrypoints=web
-      - traefik.http.services.evolution_crm.loadbalancer.server.port=3000
     build:
       context: ./evo-ai-crm-community
       dockerfile: docker/Dockerfile
@@ -274,6 +271,14 @@ services:
   # Frontend (React / Vite / Nginx) — Port 5173
   # ---------------------------------------------------------------------------
   evo-frontend:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.evo-frontend.rule=Host(`crm-vps-local.td24.com.br`)
+      - traefik.http.routers.evo-frontend.entrypoints=web
+      - traefik.http.services.evo-frontend.loadbalancer.server.port=80
+      - traefik.docker.network=meu-homelab-net
+    networks:
+      - meu-homelab-net
     build:
       context: ./evo-ai-frontend-community
       dockerfile: Dockerfile
@@ -297,11 +302,15 @@ services:
       evo-crm:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 15s
+
+networks:
+  meu-homelab-net:
+    external: true
 
 volumes:
   postgres_data:
