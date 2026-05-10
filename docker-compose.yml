@@ -94,6 +94,11 @@ services:
   # CRM Service (Ruby / Rails) — Port 3000
   # ---------------------------------------------------------------------------
   evo-crm:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.evolution_crm.rule=Host(`crm-vps-local.td24.com.br`)
+      - traefik.http.routers.evolution_crm.entrypoints=web
+      - traefik.http.services.evolution_crm.loadbalancer.server.port=3000
     build:
       context: ./evo-ai-crm-community
       dockerfile: docker/Dockerfile
