@@ -285,6 +285,7 @@ services:
       - traefik.http.services.evo-frontend.loadbalancer.server.port=80
       - traefik.docker.network=meu-homelab-net
     networks:
+      - default
       - meu-homelab-net
     build:
       context: ./evo-ai-frontend-community
@@ -314,10 +315,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
-
-networks:
-  meu-homelab-net:
-    external: true
 
 volumes:
   postgres_data:
