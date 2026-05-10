@@ -66,6 +66,9 @@ services:
       redis:
         condition: service_healthy
     command: bash -c "rm -f /rails/tmp/pids/server.pid && bundle install && bundle exec rails db:prepare && bundle exec rails s -p 3001 -b 0.0.0.0"
+    networks:
+      - default
+      - meu-homelab-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:3001/health"]
       interval: 30s
@@ -96,11 +99,6 @@ services:
   # CRM Service (Ruby / Rails) — Port 3000
   # ---------------------------------------------------------------------------
   evo-crm:
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.evolution_crm.rule=Host(`crm-vps-local.td24.com.br`)
-      - traefik.http.routers.evolution_crm.entrypoints=web
-      - traefik.http.services.evolution_crm.loadbalancer.server.port=3000
     build:
       context: ./evo-ai-crm-community
       dockerfile: docker/Dockerfile
@@ -138,6 +136,9 @@ services:
         condition: service_healthy
     entrypoint: docker/entrypoints/rails.sh
     command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    networks:
+      - default
+      - meu-homelab-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/health/live"]
       interval: 30s
@@ -285,7 +286,6 @@ services:
       - traefik.http.services.evo-frontend.loadbalancer.server.port=80
       - traefik.docker.network=meu-homelab-net
     networks:
-      - default
       - meu-homelab-net
     build:
       context: ./evo-ai-frontend-community
